@@ -1,0 +1,13 @@
+.rim  {
+  text-align: inherit;
+  width: inherit;
+  height: inherit;
+  padding: 5px;
+  font: 30px Calibri,sans-serif;
+  stroke: #84e42a;
+  stroke-width: 10px;
+  border: 10px;
+  border-radius: 8px;
+  fill: brown;
+  color: #17c2c2;
+}
