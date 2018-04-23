@@ -1,1 +1,13 @@
 /* You can add global styles to this file, and also import other style files */
+.toolTip {
+    position: fixed;
+    text-align: center;
+    padding: 10px;
+    font: 30px FontAwesome;
+    background: black;
+    border: 10px;
+    border-radius: 8px;
+    pointer-events: none;
+    color: white;
+    z-index: 999999;
+}

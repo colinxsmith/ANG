@@ -10,7 +10,9 @@ import * as d3 from 'd3';
 export class ColinComponent implements OnInit {
   centX = '100px';
   centY = '100px';
-  BAR() {
+  BAR(cx: number, cy: number) {
+    const tool = d3.select('body').append('div').attr('class', 'toolTip');
+
     const svg = d3
       .select('app-colin')
       .append('svg')
@@ -20,16 +22,24 @@ export class ColinComponent implements OnInit {
     svg
       .append('circle')
       .attr('r', '50px')
-      .attr('cx', this.centX)
-      .attr('cy', this.centY)
+      .attr('cx', cx + 'px')
+      .attr('cy', cy + 'px')
       .attr('class', 'rim')
+      .on('mousemove', function () {
+        tool.style('left', d3.event.pageX + 'px').style('top', d3.event.pageY + 'px')
+          .html((d3.event.pageX) + '<br>' + (d3.event.pageY))
+          .style('display', 'inline-block');
+      }).on('mouseout', function () {
+        tool.style('display', 'none');
+      })
+
       ;
 
     svg
       .append('rect')
       .attr('class', 'rim')
-      .attr('x', this.centX)
-      .attr('y', this.centY)
+      .attr('x', cx + 'px')
+      .attr('y', cy + 'px')
       .attr('height', '50px')
       .attr('width', '50px')
       .transition().duration(2000).attr('x', '150px').attr('y', '150px')
@@ -38,8 +48,8 @@ export class ColinComponent implements OnInit {
     const text1 = svg
       .append('text')
       .attr('class', 'text')
-      .attr('x', this.centX)
-      .attr('y', this.centY)
+      .attr('x', cx + 'px')
+      .attr('y', cy + 'px')
       .text('\uf00c')
       ;
 
@@ -49,6 +59,6 @@ export class ColinComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    this.BAR();
+    this.BAR(+this.centX.replace('px', ''), +this.centY.replace('px', ''));
   }
 }
