@@ -5,7 +5,6 @@ import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { ColinComponent } from './colin/colin.component';
 
-
 @NgModule({
   declarations: [
     AppComponent,

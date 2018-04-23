@@ -1,0 +1,11 @@
+.rim  {
+  stroke: #84e42a;
+  stroke-width: 10px;
+  fill: brown;
+}
+.text  {
+  font: 40px FontAwesome;
+  stroke-width: 1px;
+  stroke: #84e42a;
+  text-anchor: middle;
+}
