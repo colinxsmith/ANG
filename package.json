@@ -22,7 +22,6 @@
     "@angular/platform-browser-dynamic": "5.2.10",
     "@angular/router": "5.2.10",
     "@types/d3": "^5.0.0",
-    "angular-font-awesome": "^3.1.2",
     "core-js": "^2.4.1",
     "d3": "^5.1.0",
     "font-awesome": "^4.7.0",
