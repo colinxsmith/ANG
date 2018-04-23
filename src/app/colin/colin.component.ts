@@ -1,4 +1,8 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ViewEncapsulation
+} from '@angular/core';
 import * as d3 from 'd3';
 
 @Component({
@@ -11,7 +15,10 @@ export class ColinComponent implements OnInit {
   centX = '100px';
   centY = '100px';
   BAR(cx: number, cy: number) {
-    const tool = d3.select('body').append('div').attr('class', 'toolTip');
+    const tool = d3
+      .select('body')
+      .append('div')
+      .attr('class', 'toolTip');
 
     const svg = d3
       .select('app-colin')
@@ -25,14 +32,23 @@ export class ColinComponent implements OnInit {
       .attr('cx', cx + 'px')
       .attr('cy', cy + 'px')
       .attr('class', 'rim')
-      .on('mousemove', function () {
-        tool.style('left', d3.event.pageX + 'px').style('top', d3.event.pageY + 'px')
-          .html((d3.event.pageX) + '<br>' + (d3.event.pageY))
+      .on('mousemove', function() {
+        const mouseCoord = d3.mouse(d3.event.currentTarget);
+        tool
+          .style('left', d3.event.pageX + 'px')
+          .style('top', d3.event.pageY + 'px')
+          .html(mouseCoord[0] + '<br>' + mouseCoord[1])
           .style('display', 'inline-block');
-      }).on('mouseout', function () {
+      })
+      .on('mouseout', function() {
         tool.style('display', 'none');
       })
-
+      .on('click', function(dd, ii, pp) {
+        const here = d3.select(pp[ii]);
+        const mouseCoord = d3.mouse(d3.event.currentTarget);
+        here.attr('cx', mouseCoord[0] + 'px');
+        here.attr('cy', mouseCoord[1] + 'px');
+      })
       ;
 
     svg
@@ -42,21 +58,22 @@ export class ColinComponent implements OnInit {
       .attr('y', cy + 'px')
       .attr('height', '50px')
       .attr('width', '50px')
-      .transition().duration(2000).attr('x', '150px').attr('y', '150px')
-      ;
+      .transition()
+      .duration(2000)
+      .attr('x', '150px')
+      .attr('y', '150px');
 
     const text1 = svg
       .append('text')
       .attr('class', 'text')
       .attr('x', cx + 'px')
       .attr('y', cy + 'px')
-      .text('\uf00c')
-      ;
+      .text('\uf00c');
 
-    text1.attr('dy', +(text1.style('font-size').replace('px', '')) / 4);
+    text1.attr('dy', +text1.style('font-size').replace('px', '') / 4);
   }
 
-  constructor() { }
+  constructor() {}
 
   ngOnInit() {
     this.BAR(+this.centX.replace('px', ''), +this.centY.replace('px', ''));
