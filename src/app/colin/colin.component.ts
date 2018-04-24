@@ -12,11 +12,7 @@ import * as d3 from 'd3';
   encapsulation: ViewEncapsulation.None
 })
 export class ColinComponent implements OnInit {
-<<<<<<< HEAD
-  constructor() { }
-=======
   constructor() {}
->>>>>>> ttt
   centX = '100px';
   centY = '100px';
   ngOnInit() {
@@ -82,7 +78,7 @@ export class ColinComponent implements OnInit {
         return (200 - (d - 50) / 2 ) + 'px';
       })
       ;
-      const data1 = [1,2,1,3];
+      const data1 = [1, 2, 1, 3, 0.5];
       let sData = 0 , pData = 0;
       data1.forEach(function(d) {
         sData += d;
