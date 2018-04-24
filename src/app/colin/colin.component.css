@@ -3,9 +3,23 @@
   stroke-width: 10px;
   fill: brown;
 }
+.shape0  {
+  stroke: none;
+  stroke-width: 1px;
+  fill: #84e42a;
+}
+.shape1  {
+  stroke: none;
+  stroke-width: 1px;
+  fill: white;
+}
 .text  {
   font: 40px FontAwesome;
   stroke-width: 1px;
   stroke: #84e42a;
+  fill: rgb(179, 28, 199);
   text-anchor: middle;
+}
+.line{
+  stroke: red;
 }
