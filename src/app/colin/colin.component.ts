@@ -12,8 +12,12 @@ import * as d3 from 'd3';
   encapsulation: ViewEncapsulation.None
 })
 export class ColinComponent implements OnInit {
+  constructor() {}
   centX = '100px';
   centY = '100px';
+  ngOnInit() {
+    this.BAR(+this.centX.replace('px', ''), +this.centY.replace('px', ''));
+  }
   BAR(cx: number, cy: number) {
     const tool = d3
       .select('body')
@@ -73,9 +77,4 @@ export class ColinComponent implements OnInit {
     text1.attr('dy', +text1.style('font-size').replace('px', '') / 4);
   }
 
-  constructor() {}
-
-  ngOnInit() {
-    this.BAR(+this.centX.replace('px', ''), +this.centY.replace('px', ''));
-  }
 }
