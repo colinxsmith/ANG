@@ -80,7 +80,7 @@ export class ColinComponent implements OnInit {
         return (200 - (d - 50) / 2) + 'px';
       })
       ;
-    const data1 = [1, 2, 0.2, 0.5, 4, 3];
+    const data1 = [1.25, 2, 0.2, 3, 3];
     let sData = 0, pData = 0;
     data1.forEach(function (d) {
       sData += d;
@@ -112,13 +112,14 @@ export class ColinComponent implements OnInit {
 
     text1.attr('dy', +text1.style('font-size').replace('px', '') / 4);
 
-    const newFig = svg.selectAll('quadr').data(this.squarePie(data1, 50, 40, -Math.PI, Math.PI)).enter()
+    const newFig = svg.selectAll('quadr').data(this.squarePie(data1, 50, 30, -Math.PI, Math.PI)).enter()
     .append('path')
     .attr('transform', 'translate(400,100)')
     .attr('d', function(d) {
       return d;
     })
     .style('fill', function(d, i) {
+      console.log(colour[i]);
       return colour[i];
     });
   }
@@ -167,7 +168,7 @@ export class ColinComponent implements OnInit {
         seg2.yy2 = seg2.yy2 < 0 ? -rad2 : rad2;
       }
 
-      let quadR = `M ${seg1.xx2} ${seg1.yy2} L ${seg1.xx1} ${seg1.yy1} `;
+      let quadR = `M ${seg1.xx2} ${seg1.yy2} L ${seg1.xx1} ${seg1.yy1}`;
       if (seg1.xx2 === seg2.xx2 && seg1.xx1 === seg2.xx1) {// same horizontal
         quadR += `L ${seg2.xx1} ${seg2.yy1}`;
         quadR += `L ${seg2.xx2} ${seg2.yy2}`;
@@ -175,37 +176,54 @@ export class ColinComponent implements OnInit {
         quadR += `L ${seg2.xx1} ${seg2.yy1}`;
         quadR += `L ${seg2.xx2} ${seg2.yy2}`;
       } else if (Math.abs(seg1.xx1) === rad1 && Math.abs(seg1.xx2) === rad2) {// horizontal
-        if (Math.abs(seg2.xx1) === rad1 && Math.abs(seg2.xx2) === rad2) {
-          quadR += `L ${seg1.xx1} ${rad1}`;
-          quadR += `L ${seg2.xx1} ${rad1}`;
+        if (Math.abs(seg2.xx1) === rad1 && Math.abs(seg2.xx2) === rad2) {// skip one corner
+          quadR += `L ${seg1.xx1} ${seg1.yy1 < 0 ? -rad1 : rad1}`;
+          quadR += `L ${seg2.xx1} ${seg1.yy1 < 0 ? -rad1 : rad1}`;
+        } else if (seg2.yy1 === rad1 && seg2.yy2 === rad2 && seg1.xx1 === -rad1 && seg1.xx2 === -rad2) {// skip two corners
+          quadR += `L ${-rad1} ${-rad1}`;
+          quadR += `L ${rad1} ${-rad1}`;
+          quadR += `L ${rad1} ${rad1}`;
         } else {
           quadR += `L ${seg1.xx1} ${seg2.yy1}`;
         }
         quadR += `L ${seg2.xx1} ${seg2.yy1}`;
         quadR += `L ${seg2.xx2} ${seg2.yy2}`;
         if (Math.abs(seg2.xx1) === rad1 && Math.abs(seg2.xx2) === rad2) {
-          quadR += `L ${seg2.xx2} ${rad2}`;
-          quadR += `L ${seg1.xx2} ${rad2}`;
+          // skip one corner
+          quadR += `L ${seg2.xx2} ${seg1.yy1 < 0 ? -rad2 : rad2}`;
+          quadR += `L ${seg1.xx2} ${seg1.yy1 < 0 ? -rad2 : rad2}`;
+        } else if (seg2.yy1 === rad1 && seg2.yy2 === rad2 && seg1.xx1 === -rad1 && seg1.xx2 === -rad2) {// skip two corners
+          quadR += `L${rad2} ${rad2}`;
+          quadR += `L${rad2} ${-rad2}`;
+          quadR += `L${-rad2} ${-rad2}`;
         } else {
           quadR += `L ${seg1.xx2} ${seg2.yy2}`;
         }
       } else if (Math.abs(seg1.yy1) === rad1 && Math.abs(seg1.yy2) === rad2) {// verticle
-        if (Math.abs(seg2.yy1) === rad1 && Math.abs(seg2.yy2) === rad2) {
-          quadR += `L ${rad1} ${seg1.yy1}`;
-          quadR += `L ${rad1} ${seg2.yy1}`;
+        if (Math.abs(seg2.yy1) === rad1 && Math.abs(seg2.yy2) === rad2) {// skip one corner
+          quadR += `L ${seg1.xx1 < 0 ? -rad1 : rad1} ${seg1.yy1}`;
+          quadR += `L ${seg1.xx1 < 0 ? -rad1 : rad1} ${seg2.yy1}`;
+        } else if (seg2.xx1 === -rad1 && seg2.xx2 === -rad2 && seg1.yy1 === -rad1 && seg1.yy2 === -rad2) {// skip two corners
+          quadR += `L${rad1} ${-rad1}`;
+          quadR += `L${rad1} ${rad1}`;
+          quadR += `L${-rad1} ${rad1}`;
         } else {
         quadR += `L ${seg2.xx1} ${seg1.yy1}`;
         }
         quadR += `L ${seg2.xx1} ${seg2.yy1}`;
         quadR += `L ${seg2.xx2} ${seg2.yy2}`;
-        if (Math.abs(seg2.yy1) === rad1 && Math.abs(seg2.yy2) === rad2) {
-          quadR += `L ${rad2} ${seg2.yy2}`;
-          quadR += `L ${rad2} ${seg1.yy2}`;
+        if (Math.abs(seg2.yy1) === rad1 && Math.abs(seg2.yy2) === rad2) {// skip one corner
+          quadR += `L ${seg1.xx2 < 0 ? -rad2 : rad2} ${seg2.yy2}`;
+          quadR += `L ${seg1.xx2 < 0 ? -rad2 : rad2} ${seg1.yy2}`;
+        } else if (seg2.xx1 === -rad1 && seg2.xx2 === -rad2 && seg1.yy1 === -rad1 && seg1.yy2 === -rad2) {// skip two corners
+          quadR += `L${-rad2} ${rad2}`;
+          quadR += `L${rad2} ${rad2}`;
+          quadR += `L${rad2} ${-rad2}`;
         } else {
         quadR += `L ${seg2.xx2} ${seg1.yy2}`;
         }
       }
-      quadR += `L ${seg1.xx2} ${seg1.yy2}`;
+      quadR += `L ${seg1.xx2} ${seg1.yy2}Z`;
       startPosition = d;
       linesD.push(quadR);
     });
