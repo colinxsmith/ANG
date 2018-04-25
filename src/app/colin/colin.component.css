@@ -1,7 +1,12 @@
 .rim  {
   stroke: #84e42a;
-  stroke-width: 10px;
+  stroke-width: 1px;
   fill: brown;
+}
+.shaper  {
+  stroke: #2a2de4;
+  stroke-width: 1px;
+  fill: rgb(132, 165, 42);
 }
 .text  {
   font: 40px FontAwesome;
