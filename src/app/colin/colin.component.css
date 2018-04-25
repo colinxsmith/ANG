@@ -3,14 +3,23 @@
   stroke-width: 1px;
   fill: brown;
 }
-.shaper  {
-  stroke: #2a2de4;
+.shape0  {
+  stroke: none;
   stroke-width: 1px;
-  fill: rgb(132, 165, 42);
+  fill: #84e42a;
+}
+.shape1  {
+  stroke: none;
+  stroke-width: 1px;
+  fill: white;
 }
 .text  {
   font: 40px FontAwesome;
   stroke-width: 1px;
   stroke: #84e42a;
+  fill: rgb(179, 28, 199);
   text-anchor: middle;
+}
+.line{
+  stroke: red;
 }
