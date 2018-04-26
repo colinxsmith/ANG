@@ -20,6 +20,7 @@ export class ColinComponent implements OnInit {
   }
   BAR(cx: number, cy: number) {
     const formatH = d3.format('0.2f');
+    const formatA = d3.format('0.0f');
     const colour = ['red', 'orange', 'blue', 'green', 'brown', 'lightgreen', 'yellow'];
 
     const tool = d3
@@ -33,7 +34,7 @@ export class ColinComponent implements OnInit {
       .attr('viewBox', '0 0 500 500')
       .append('g');
 
-    svg
+    const circles = svg
       .append('circle')
       .attr('r', '50px')
       .attr('cx', cx + 'px')
@@ -58,74 +59,45 @@ export class ColinComponent implements OnInit {
       })
       ;
 
-    svg.selectAll('shape').data([80, 60]).enter()
-      .append('rect')
-      .attr('class', function (d, i) {
-        return i === 0 ? 'shape0' : 'shape1';
-      })
-      .attr('x', cx + 'px')
-      .attr('y', cy + 'px')
-      .attr('height', function (d) {
-        return d + 'px';
-      })
-      .attr('width', function (d) {
-        return d + 'px';
-      })
-      .transition()
-      .duration(2000)
-      .attr('x', function (d) {
-        return (200 - (d - 50) / 2) + 'px';
-      })
-      .attr('y', function (d) {
-        return (200 - (d - 50) / 2) + 'px';
-      })
-      ;
-    const data1 = [1.25, 2, 0.2, 3, 3];
-    let sData = 0, pData = 0;
-    data1.forEach(function (d) {
-      sData += d;
-    });
+    const data1 = [3, 0.5, 2, 3, 1, 4, 1];
 
-    svg.selectAll('lines').data(data1).enter()
-      .append('path')
-      .attr('class', 'line')
-      .attr('d', function (d) {
-        pData += d;
-        const ang = 2 * Math.PI * pData / sData - Math.PI;
-        console.log(ang);
-        let xx1 = 80 * Math.cos(ang);
-        let yy1 = 80 * Math.sin(ang);
-        xx1 = Math.max(Math.min(xx1, 40), -40);
-        yy1 = Math.max(Math.min(yy1, 40), -40);
-        let xx2 = 60 * Math.cos(ang);
-        let yy2 = 60 * Math.sin(ang);
-        xx2 = Math.max(Math.min(xx2, 30), -30);
-        yy2 = Math.max(Math.min(yy2, 30), -30);
-        return `M ${225 + xx2} ${225 + yy2} L ${225 + xx1} ${225 + yy1} `;
-      });
     const text1 = svg
       .append('text')
       .attr('class', 'text')
       .attr('x', cx + 'px')
       .attr('y', cy + 'px')
-      .text('\uf2bc');
+      .text('\uf2bd');
 
     text1.attr('dy', +text1.style('font-size').replace('px', '') / 4);
 
-    const newFig = svg.selectAll('quadr').data(this.squarePie(data1, 50, 30, -Math.PI, Math.PI)).enter()
+    const newFig = svg.selectAll('quadr').data(this.squarePie(data1, 50, 30, 40 * Math.PI / 180, 325 * Math.PI / 180)).enter()
     .append('path')
-    .attr('transform', 'translate(400,100)')
-    .attr('d', function(d) {
-      return d;
+    .attr('transform', `translate(${250},${100}),rotate(0)`)
+    .attr('d', function(d: {path: string, data: number, angle: number}) {
+      return d.path;
     })
-    .style('fill', function(d, i) {
+    .on('mousemove', function (d: {path: string, data: number, angle: number}, i) {
+      const mouseCoord = d3.mouse(d3.event.currentTarget);
+      tool
+        .style('left', d3.event.pageX + 'px')
+        .style('top', (d3.event.pageY - 30) + 'px')
+        .html(i + ' ' + data1[i] + ' ' + d.data + ' ' + formatA(d.angle / Math.PI * 360))
+        .style('display', 'inline-block');
+    })
+    .on('mouseout', function () {
+      tool.style('display', 'none');
+    })
+  .style('fill', function(d, i) {
       console.log(colour[i]);
       return colour[i];
     });
   }
   squarePie = function (data: number[], rad1: number, rad2: number, ang1: number, ang2: number) {
+    ang1 -= 3 * Math.PI / 2;
+    ang2 -= 3 * Math.PI / 2;
+
     const cumData = <number[]>[];
-    const linesD = <string[]>[];
+    const linesD = <{path: string, data: number, angle: number}[]>[];
     let totD = 0;
     data.forEach(function (d, i) {
       totD += d;
@@ -135,7 +107,7 @@ export class ColinComponent implements OnInit {
     let startPosition = 0;
     cumData.forEach(function (d, i) {
       const seg1 = { xx1: 0, xx2: 0, yy1: 0, yy2: 0 };
-      const seg2 = { xx1: 0, xx2: 0, yy1: 0, yy2: 0 };
+      const seg2 = { xx1: 0, xx2: 0, yy1: 0, yy2: 0, face: 0 };
       let ang = angle(startPosition);
       seg1.xx1 = rad1 * Math.cos(ang);
       seg1.yy1 = rad1 * Math.sin(ang);
@@ -167,65 +139,210 @@ export class ColinComponent implements OnInit {
       } else {
         seg2.yy2 = seg2.yy2 < 0 ? -rad2 : rad2;
       }
-
+      if (seg1.xx1 === -rad1 && seg2.xx1 === -rad1) {// both left side
+        if (seg2.yy1 <= seg1.yy1) {
+          seg2.face = 0;
+        } else {
+          seg2.face = 4;
+        }
+      } else if (seg1.yy1 === -rad1 && seg2.yy1 === -rad1) {// both top side
+        if (seg2.xx1 >= seg1.xx1) {
+          seg2.face = 0;
+        } else {
+          seg2.face = 4;
+        }
+      } else if (seg1.xx1 === rad1 && seg2.xx1 === rad1) {// both right side
+        if (seg2.yy1 >= seg1.yy1) {
+          seg2.face = 0;
+        } else {
+          seg2.face = 4;
+        }
+      } else if (seg1.yy1 === rad1 && seg2.yy1 === rad1) {// both bottom side
+        if (seg2.xx1 <= seg1.xx1) {
+          seg2.face = 0;
+        } else {
+          seg2.face = 4;
+        }
+      } else if (seg1.xx1 === -rad1 && seg2.yy1 === -rad1) {// left to top
+        seg2.face = 1;
+      } else if (seg1.xx1 === -rad1 && seg2.xx1 === rad1) {// left to right
+        seg2.face = 2;
+      } else if (seg1.xx1 === -rad1 && seg2.yy1 === rad1) {// left to bottom
+        seg2.face = 3;
+      } else if (seg1.yy1 === -rad1 && seg2.xx1 === rad1) {// top to right
+        seg2.face = 1;
+      } else if (seg1.yy1 === -rad1 && seg2.yy1 === rad1) {// top to bottom
+        seg2.face = 2;
+      } else if (seg1.yy1 === -rad1 && seg2.xx1 === -rad1) {// top to left
+        seg2.face = 3;
+      } else if (seg1.xx1 === rad1 && seg2.yy1 === rad1) {// right to bottom
+        seg2.face = 1;
+      } else if (seg1.xx1 === rad1 && seg2.xx1 === -rad1) {// right to left
+        seg2.face = 2;
+      } else if (seg1.xx1 === rad1 && seg2.yy1 === -rad1) {// right to top
+        seg2.face = 3;
+      } else if (seg1.yy1 === rad1 && seg2.xx1 === -rad1) {// bottom to left
+        seg2.face = 1;
+      } else if (seg1.yy1 === rad1 && seg2.yy1 === -rad1) {// bottom to top
+        seg2.face = 2;
+      } else if (seg1.yy1 === rad1 && seg2.xx1 === rad1) {// bottom to right
+        seg2.face = 3;
+      }
       let quadR = `M ${seg1.xx2} ${seg1.yy2} L ${seg1.xx1} ${seg1.yy1}`;
-      if (seg1.xx2 === seg2.xx2 && seg1.xx1 === seg2.xx1) {// same horizontal
-        quadR += `L ${seg2.xx1} ${seg2.yy1}`;
-        quadR += `L ${seg2.xx2} ${seg2.yy2}`;
-      } else if (seg1.yy1 === seg2.yy1 && seg1.yy2 === seg2.yy2) {// same verticle
-        quadR += `L ${seg2.xx1} ${seg2.yy1}`;
-        quadR += `L ${seg2.xx2} ${seg2.yy2}`;
-      } else if (Math.abs(seg1.xx1) === rad1 && Math.abs(seg1.xx2) === rad2) {// horizontal
-        if (Math.abs(seg2.xx1) === rad1 && Math.abs(seg2.xx2) === rad2) {// skip one corner
-          quadR += `L ${seg1.xx1} ${seg1.yy1 < 0 ? -rad1 : rad1}`;
-          quadR += `L ${seg2.xx1} ${seg1.yy1 < 0 ? -rad1 : rad1}`;
-        } else if (seg2.yy1 === rad1 && seg2.yy2 === rad2 && seg1.xx1 === -rad1 && seg1.xx2 === -rad2) {// skip two corners
+      if (seg2.face === 0) {
+        if (seg1.xx1 === -rad1) {
+          quadR += `L ${-rad1} ${seg2.yy1}`;
+          quadR += `L ${-rad2} ${seg2.yy2}`;
+        } else if (seg1.xx1 === rad1) {
+          quadR += `L ${rad1} ${seg2.yy1}`;
+          quadR += `L ${rad2} ${seg2.yy2}`;
+        } else if (seg1.yy1 === -rad1) {
+          quadR += `L ${seg2.xx1} ${-rad1}`;
+          quadR += `L ${seg2.xx2} ${-rad2}`;
+        } else if (seg1.yy1 === rad1) {
+          quadR += `L ${seg2.xx1} ${rad1}`;
+          quadR += `L ${seg2.xx2} ${rad2}`;
+        }
+      } else if (seg2.face === 1) {
+        if (seg1.xx1 === -rad1) {
+          quadR += `L ${-rad1} ${-rad1}`;
+          quadR += `L ${seg2.xx1} ${-rad1}`;
+          quadR += `L ${seg2.xx2} ${-rad2}`;
+          quadR += `L ${-rad2} ${-rad2}`;
+        } else if (seg1.xx1 === rad1) {
+          quadR += `L ${rad1} ${rad1}`;
+          quadR += `L ${seg2.xx1} ${rad1}`;
+          quadR += `L ${seg2.xx2} ${rad2}`;
+          quadR += `L ${rad2} ${rad2}`;
+        } else if (seg1.yy1 === -rad1) {
+          quadR += `L ${rad1} ${-rad1}`;
+          quadR += `L ${rad1} ${seg2.yy1}`;
+          quadR += `L ${rad2} ${seg2.yy2}`;
+          quadR += `L ${rad2} ${-rad2}`;
+        } else if (seg1.yy1 === rad1) {
+          quadR += `L ${-rad1} ${rad1}`;
+          quadR += `L ${-rad1} ${seg2.yy1}`;
+          quadR += `L ${-rad2} ${seg2.yy2}`;
+          quadR += `L ${-rad2} ${rad2}`;
+        }
+      } else if (seg2.face === 2) {
+        if (seg1.xx1 === -rad1) {
+          quadR += `L ${-rad1} ${-rad1}`;
+          quadR += `L ${rad1} ${-rad1}`;
+          quadR += `L ${rad1} ${seg2.yy1}`;
+          quadR += `L ${rad2} ${seg2.yy2}`;
+          quadR += `L ${rad2} ${-rad2}`;
+          quadR += `L ${-rad2} ${-rad2}`;
+        } else if (seg1.xx1 === rad1) {
+          quadR += `L ${rad1} ${rad1}`;
+          quadR += `L ${-rad1} ${rad1}`;
+          quadR += `L ${-rad1} ${seg2.yy1}`;
+          quadR += `L ${-rad2} ${seg2.yy2}`;
+          quadR += `L ${-rad2} ${rad2}`;
+          quadR += `L ${rad2} ${rad2}`;
+        } else if (seg1.yy1 === -rad1) {
+          quadR += `L ${rad1} ${-rad1}`;
+          quadR += `L ${rad1} ${rad1}`;
+          quadR += `L ${seg2.xx1} ${rad1}`;
+          quadR += `L ${seg2.xx2} ${rad2}`;
+          quadR += `L ${rad2} ${rad2}`;
+          quadR += `L ${rad2} ${-rad2}`;
+        } else if (seg1.yy1 === rad1) {
+          quadR += `L ${-rad1} ${rad1}`;
+          quadR += `L ${-rad1} ${-rad1}`;
+          quadR += `L ${seg2.xx1} ${-rad1}`;
+          quadR += `L ${seg2.xx2} ${-rad2}`;
+          quadR += `L ${-rad2} ${-rad2}`;
+          quadR += `L ${-rad2} ${rad2}`;
+        }
+      } else if (seg2.face === 3) {
+        if (seg1.xx1 === -rad1) {
           quadR += `L ${-rad1} ${-rad1}`;
           quadR += `L ${rad1} ${-rad1}`;
           quadR += `L ${rad1} ${rad1}`;
-        } else {
-          quadR += `L ${seg1.xx1} ${seg2.yy1}`;
+          quadR += `L ${seg2.xx1} ${rad1}`;
+          quadR += `L ${seg2.xx2} ${rad2}`;
+          quadR += `L ${rad2} ${rad2}`;
+          quadR += `L ${rad2} ${-rad2}`;
+          quadR += `L ${-rad2} ${-rad2}`;
+        } else if (seg1.xx1 === rad1) {
+          quadR += `L ${rad1} ${rad1}`;
+          quadR += `L ${-rad1} ${rad1}`;
+          quadR += `L ${-rad1} ${-rad1}`;
+          quadR += `L ${seg2.xx1} ${-rad1}`;
+          quadR += `L ${seg2.xx2} ${-rad2}`;
+          quadR += `L ${-rad2} ${-rad2}`;
+          quadR += `L ${-rad2} ${rad2}`;
+          quadR += `L ${rad2} ${rad2}`;
+        } else if (seg1.yy1 === -rad1) {
+          quadR += `L ${rad1} ${-rad1}`;
+          quadR += `L ${rad1} ${rad1}`;
+          quadR += `L ${-rad1} ${rad1}`;
+          quadR += `L ${-rad1} ${seg2.yy1}`;
+          quadR += `L ${-rad2} ${seg2.yy2}`;
+          quadR += `L ${-rad2} ${rad2}`;
+          quadR += `L ${rad2} ${rad2}`;
+          quadR += `L ${rad2} ${-rad2}`;
+        } else if (seg1.yy1 === rad1) {
+          quadR += `L ${-rad1} ${rad1}`;
+          quadR += `L ${-rad1} ${-rad1}`;
+          quadR += `L ${rad1} ${-rad1}`;
+          quadR += `L ${rad1} ${seg2.yy1}`;
+          quadR += `L ${rad2} ${seg2.yy2}`;
+          quadR += `L ${rad2} ${-rad2}`;
+          quadR += `L ${-rad2} ${-rad2}`;
+          quadR += `L ${-rad2} ${rad2}`;
         }
-        quadR += `L ${seg2.xx1} ${seg2.yy1}`;
-        quadR += `L ${seg2.xx2} ${seg2.yy2}`;
-        if (Math.abs(seg2.xx1) === rad1 && Math.abs(seg2.xx2) === rad2) {
-          // skip one corner
-          quadR += `L ${seg2.xx2} ${seg1.yy1 < 0 ? -rad2 : rad2}`;
-          quadR += `L ${seg1.xx2} ${seg1.yy1 < 0 ? -rad2 : rad2}`;
-        } else if (seg2.yy1 === rad1 && seg2.yy2 === rad2 && seg1.xx1 === -rad1 && seg1.xx2 === -rad2) {// skip two corners
-          quadR += `L${rad2} ${rad2}`;
-          quadR += `L${rad2} ${-rad2}`;
-          quadR += `L${-rad2} ${-rad2}`;
-        } else {
-          quadR += `L ${seg1.xx2} ${seg2.yy2}`;
-        }
-      } else if (Math.abs(seg1.yy1) === rad1 && Math.abs(seg1.yy2) === rad2) {// verticle
-        if (Math.abs(seg2.yy1) === rad1 && Math.abs(seg2.yy2) === rad2) {// skip one corner
-          quadR += `L ${seg1.xx1 < 0 ? -rad1 : rad1} ${seg1.yy1}`;
-          quadR += `L ${seg1.xx1 < 0 ? -rad1 : rad1} ${seg2.yy1}`;
-        } else if (seg2.xx1 === -rad1 && seg2.xx2 === -rad2 && seg1.yy1 === -rad1 && seg1.yy2 === -rad2) {// skip two corners
-          quadR += `L${rad1} ${-rad1}`;
-          quadR += `L${rad1} ${rad1}`;
-          quadR += `L${-rad1} ${rad1}`;
-        } else {
-        quadR += `L ${seg2.xx1} ${seg1.yy1}`;
-        }
-        quadR += `L ${seg2.xx1} ${seg2.yy1}`;
-        quadR += `L ${seg2.xx2} ${seg2.yy2}`;
-        if (Math.abs(seg2.yy1) === rad1 && Math.abs(seg2.yy2) === rad2) {// skip one corner
-          quadR += `L ${seg1.xx2 < 0 ? -rad2 : rad2} ${seg2.yy2}`;
-          quadR += `L ${seg1.xx2 < 0 ? -rad2 : rad2} ${seg1.yy2}`;
-        } else if (seg2.xx1 === -rad1 && seg2.xx2 === -rad2 && seg1.yy1 === -rad1 && seg1.yy2 === -rad2) {// skip two corners
-          quadR += `L${-rad2} ${rad2}`;
-          quadR += `L${rad2} ${rad2}`;
-          quadR += `L${rad2} ${-rad2}`;
-        } else {
-        quadR += `L ${seg2.xx2} ${seg1.yy2}`;
+      } else if (seg2.face === 4) {
+        if (seg1.xx1 === -rad1) {
+          quadR += `L ${-rad1} ${-rad1}`;
+          quadR += `L ${rad1} ${-rad1}`;
+          quadR += `L ${rad1} ${rad1}`;
+          quadR += `L ${-rad1} ${rad1}`;
+          quadR += `L ${-rad1} ${seg2.yy1}`;
+          quadR += `L ${-rad2} ${seg2.yy2}`;
+          quadR += `L ${-rad2} ${rad2}`;
+          quadR += `L ${rad2} ${rad2}`;
+          quadR += `L ${rad2} ${-rad2}`;
+          quadR += `L ${-rad2} ${-rad2}`;
+        } else if (seg1.xx1 === rad1) {
+          quadR += `L ${rad1} ${rad1}`;
+          quadR += `L ${-rad1} ${rad1}`;
+          quadR += `L ${-rad1} ${-rad1}`;
+          quadR += `L ${rad1} ${-rad1}`;
+          quadR += `L ${rad1} ${seg2.yy1}`;
+          quadR += `L ${rad2} ${seg2.yy2}`;
+          quadR += `L ${rad2} ${-rad2}`;
+          quadR += `L ${-rad2} ${-rad2}`;
+          quadR += `L ${-rad2} ${rad2}`;
+          quadR += `L ${rad2} ${rad2}`;
+        } else if (seg1.yy1 === -rad1) {
+          quadR += `L ${rad1} ${-rad1}`;
+          quadR += `L ${rad1} ${rad1}`;
+          quadR += `L ${-rad1} ${rad1}`;
+          quadR += `L ${-rad1} ${-rad1}`;
+          quadR += `L ${seg2.xx1} ${-rad1}`;
+          quadR += `L ${seg2.xx2} ${-rad2}`;
+          quadR += `L ${-rad2} ${-rad2}`;
+          quadR += `L ${-rad2} ${rad2}`;
+          quadR += `L ${rad2} ${rad2}`;
+          quadR += `L ${rad2} ${-rad2}`;
+        } else if (seg1.yy1 === rad1) {
+          quadR += `L ${-rad1} ${rad1}`;
+          quadR += `L ${-rad1} ${-rad1}`;
+          quadR += `L ${rad1} ${-rad1}`;
+          quadR += `L ${rad1} ${rad1}`;
+          quadR += `L ${seg2.xx1} ${rad1}`;
+          quadR += `L ${seg2.xx2} ${rad2}`;
+          quadR += `L ${rad2} ${rad2}`;
+          quadR += `L ${rad2} ${-rad2}`;
+          quadR += `L ${-rad2} ${-rad2}`;
+          quadR += `L ${-rad2} ${rad2}`;
         }
       }
-      quadR += `L ${seg1.xx2} ${seg1.yy2}Z`;
+      quadR += `Z`; // Closed curve
       startPosition = d;
-      linesD.push(quadR);
+      linesD.push({path: quadR, data: d, angle: ang});
     });
     return linesD;
   };
