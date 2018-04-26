@@ -20,6 +20,7 @@ export class ColinComponent implements OnInit {
   }
   BAR(cx: number, cy: number) {
     const formatH = d3.format('0.2f');
+    const formatA = d3.format('0.0f');
     const colour = ['red', 'orange', 'blue', 'green', 'brown', 'lightgreen', 'yellow'];
 
     const tool = d3
@@ -58,22 +59,18 @@ export class ColinComponent implements OnInit {
       })
       ;
 
-   const data1 = [3, 0.5, 2, 3, 1, 4, 1];
-    let sData = 0;
-    data1.forEach(function (d) {
-      sData += d;
-    });
+    const data1 = [3, 0.5, 2, 3, 1, 4, 1];
 
     const text1 = svg
       .append('text')
       .attr('class', 'text')
       .attr('x', cx + 'px')
       .attr('y', cy + 'px')
-      .text('\uf2bc');
+      .text('\uf2bd');
 
     text1.attr('dy', +text1.style('font-size').replace('px', '') / 4);
 
-    const newFig = svg.selectAll('quadr').data(this.squarePie(data1, 50, 1, -170 * Math.PI / 180, -10 * Math.PI / 180)).enter()
+    const newFig = svg.selectAll('quadr').data(this.squarePie(data1, 50, 30, 40 * Math.PI / 180, 325 * Math.PI / 180)).enter()
     .append('path')
     .attr('transform', `translate(${250},${100}),rotate(0)`)
     .attr('d', function(d: {path: string, data: number, angle: number}) {
@@ -84,7 +81,7 @@ export class ColinComponent implements OnInit {
       tool
         .style('left', d3.event.pageX + 'px')
         .style('top', (d3.event.pageY - 30) + 'px')
-        .html(i + ' ' + d.data + ' ' + d.angle / Math.PI * 360)
+        .html(i + ' ' + data1[i] + ' ' + d.data + ' ' + formatA(d.angle / Math.PI * 360))
         .style('display', 'inline-block');
     })
     .on('mouseout', function () {
@@ -96,6 +93,9 @@ export class ColinComponent implements OnInit {
     });
   }
   squarePie = function (data: number[], rad1: number, rad2: number, ang1: number, ang2: number) {
+    ang1 -= 3 * Math.PI / 2;
+    ang2 -= 3 * Math.PI / 2;
+
     const cumData = <number[]>[];
     const linesD = <{path: string, data: number, angle: number}[]>[];
     let totD = 0;
@@ -140,7 +140,7 @@ export class ColinComponent implements OnInit {
         seg2.yy2 = seg2.yy2 < 0 ? -rad2 : rad2;
       }
       if (seg1.xx1 === -rad1 && seg2.xx1 === -rad1) {// both left side
-        if (seg2.yy1 >= seg1.yy1) {
+        if (seg2.yy1 <= seg1.yy1) {
           seg2.face = 0;
         } else {
           seg2.face = 4;
@@ -158,7 +158,7 @@ export class ColinComponent implements OnInit {
           seg2.face = 4;
         }
       } else if (seg1.yy1 === rad1 && seg2.yy1 === rad1) {// both bottom side
-        if (seg2.yy1 >= seg1.yy1) {
+        if (seg2.xx1 <= seg1.xx1) {
           seg2.face = 0;
         } else {
           seg2.face = 4;
