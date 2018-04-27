@@ -23,6 +23,7 @@ export class ColinComponent implements OnInit {
     const formatA = d3.format('0.0f');
     const colour = ['red', 'orange', 'blue', 'green', 'brown', 'lightgreen', 'yellow'];
 
+    const arcfunc = d3.arc();
     const tool = d3
       .select('body')
       .append('div')
@@ -44,7 +45,7 @@ export class ColinComponent implements OnInit {
         const mouseCoord = d3.mouse(d3.event.currentTarget);
         tool
           .style('left', d3.event.pageX + 'px')
-          .style('top', (d3.event.pageY - 300) + 'px')
+          .style('top', (d3.event.pageY - 30) + 'px')
           .html(formatH(mouseCoord[0]) + '<br>' + formatH(mouseCoord[1]))
           .style('display', 'inline-block');
       })
@@ -70,10 +71,35 @@ export class ColinComponent implements OnInit {
 
     text1.attr('dy', +text1.style('font-size').replace('px', '') / 4);
 
-    const newFig = svg.selectAll('quadr').data(this.squarePie(data1, 50, 30, 40 * Math.PI / 180, 325 * Math.PI / 180)).enter()
+    const oldFig = svg.selectAll('quadr').data(this.squarePie(data1, 50, 30, 40 * Math.PI / 180, 325 * Math.PI / 180)).enter()
     .append('path')
     .attr('transform', `translate(${250},${100}),rotate(0)`)
-    .attr('d', function(d: {path: string, data: number, angle: number}) {
+    .attr('d', function(d: {path: string, data: number, angle: number, angle0: number}) {
+      return arcfunc({startAngle: d.angle0 - 3 * Math.PI / 2, endAngle: d.angle - 3 * Math.PI / 2
+        , innerRadius: 30, outerRadius: 50, padAngle: 0});
+    })
+    .on('mousemove', function (d: {path: string, data: number, angle: number}, i) {
+      const mouseCoord = d3.mouse(d3.event.currentTarget);
+      tool
+        .style('left', d3.event.pageX + 'px')
+        .style('top', (d3.event.pageY - 30) + 'px')
+        .html(i + ' ' + data1[i] + ' ' + d.data + ' ' + formatA(d.angle / Math.PI * 360))
+        .style('display', 'inline-block');
+    })
+    .on('mouseout', function () {
+      tool.style('display', 'none');
+    })
+  .style('fill', function(d, i) {
+      console.log(colour[i]);
+      return colour[i];
+    });
+
+
+
+    const newFig = svg.selectAll('quadr').data(this.squarePie(data1, 50, 30, 40 * Math.PI / 180, 325 * Math.PI / 180)).enter()
+    .append('path')
+    .attr('transform', `translate(${370},${100}),rotate(0)`)
+    .attr('d', function(d: {path: string, data: number, angle: number, angle0: number}) {
       return d.path;
     })
     .on('mousemove', function (d: {path: string, data: number, angle: number}, i) {
@@ -97,7 +123,7 @@ export class ColinComponent implements OnInit {
     ang2 -= 3 * Math.PI / 2;
 
     const cumData = <number[]>[];
-    const linesD = <{path: string, data: number, angle: number}[]>[];
+    const linesD = <{path: string, data: number, angle: number, angle0: number}[]>[];
     let totD = 0;
     data.forEach(function (d, i) {
       totD += d;
@@ -109,6 +135,7 @@ export class ColinComponent implements OnInit {
       const seg1 = { xx1: 0, xx2: 0, yy1: 0, yy2: 0 };
       const seg2 = { xx1: 0, xx2: 0, yy1: 0, yy2: 0, face: 0 };
       let ang = angle(startPosition);
+      const startang = ang;
       seg1.xx1 = rad1 * Math.cos(ang);
       seg1.yy1 = rad1 * Math.sin(ang);
       if (Math.abs(seg1.xx1) > Math.abs(seg1.yy1)) {
@@ -342,7 +369,7 @@ export class ColinComponent implements OnInit {
       }
       quadR += `Z`; // Closed curve
       startPosition = d;
-      linesD.push({path: quadR, data: d, angle: ang});
+      linesD.push({path: quadR, data: d, angle: ang, angle0: startang});
     });
     return linesD;
   };
