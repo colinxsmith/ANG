@@ -70,13 +70,16 @@ export class ColinComponent implements OnInit {
       .text('\uf2bd');
 
     text1.attr('dy', +text1.style('font-size').replace('px', '') / 4);
+    const innerRadius = 45, outerRadius = 50;
+    const radian = Math.PI / 180, startAngle = 45 * radian, endAngle = (360 - 45) * radian;
 
-    const oldFig = svg.selectAll('quadr').data(this.squarePie(data1, 50, 30, 40 * Math.PI / 180, 325 * Math.PI / 180)).enter()
+    const squareData = this.squarePie(data1, outerRadius, innerRadius, startAngle, endAngle);
+    const oldFig = svg.selectAll('quadr').data(squareData).enter()
     .append('path')
     .attr('transform', `translate(${250},${100}),rotate(0)`)
     .attr('d', function(d: {path: string, data: number, angle: number, angle0: number}) {
-      return arcfunc({startAngle: d.angle0 - 3 * Math.PI / 2, endAngle: d.angle - 3 * Math.PI / 2
-        , innerRadius: 30, outerRadius: 50, padAngle: 0});
+      return arcfunc({startAngle: d.angle0 + Math.PI / 2, endAngle: d.angle + Math.PI / 2
+        , innerRadius: innerRadius, outerRadius: outerRadius, padAngle: 0});
     })
     .on('mousemove', function (d: {path: string, data: number, angle: number}, i) {
       const mouseCoord = d3.mouse(d3.event.currentTarget);
@@ -96,7 +99,7 @@ export class ColinComponent implements OnInit {
 
 
 
-    const newFig = svg.selectAll('quadr').data(this.squarePie(data1, 50, 30, 40 * Math.PI / 180, 325 * Math.PI / 180)).enter()
+    const newFig = svg.selectAll('quadr').data(squareData).enter()
     .append('path')
     .attr('transform', `translate(${370},${100}),rotate(0)`)
     .attr('d', function(d: {path: string, data: number, angle: number, angle0: number}) {
@@ -111,26 +114,33 @@ export class ColinComponent implements OnInit {
         .style('display', 'inline-block');
     })
     .on('mouseout', function () {
-      tool.style('display', 'none');
-    })
-  .style('fill', function(d, i) {
-      console.log(colour[i]);
-      return colour[i];
-    });
+        tool.style('display', 'none');
+      })
+      .style('fill', function (d, i) {
+        console.log(colour[i]);
+        return colour[i];
+      });
+    const debHere = false;
+    if (debHere) {
+      svg.append('circle').attr('transform', 'translate(250,100)').style('fill', 'none').style('stroke', 'black').attr('r', outerRadius);
+      svg.append('circle').attr('transform', 'translate(250,100)').style('fill', 'none').style('stroke', 'black').attr('r', innerRadius);
+      svg.append('circle').attr('transform', 'translate(370,100)').style('fill', 'none').style('stroke', 'black').attr('r', outerRadius);
+      svg.append('circle').attr('transform', 'translate(370,100)').style('fill', 'none').style('stroke', 'black').attr('r', innerRadius);
+    }
   }
   squarePie = function (data: number[], rad1: number, rad2: number, ang1: number, ang2: number) {
-    ang1 -= 3 * Math.PI / 2;
-    ang2 -= 3 * Math.PI / 2;
+    ang1 += Math.PI / 2;
+    ang2 += Math.PI / 2;
 
     const cumData = <number[]>[];
     const linesD = <{path: string, data: number, angle: number, angle0: number}[]>[];
-    let totD = 0;
+    let totD = 0; const botD = 0;
     data.forEach(function (d, i) {
       totD += d;
       cumData[i] = totD;
     });
-    const angle = d3.scaleLinear().domain([0, totD]).range([ang1, ang2]);
-    let startPosition = 0;
+    const angle = d3.scaleLinear().domain([botD, totD]).range([ang1, ang2]);
+    let startPosition = botD;
     cumData.forEach(function (d, i) {
       const seg1 = { xx1: 0, xx2: 0, yy1: 0, yy2: 0 };
       const seg2 = { xx1: 0, xx2: 0, yy1: 0, yy2: 0, face: 0 };
@@ -139,15 +149,19 @@ export class ColinComponent implements OnInit {
       seg1.xx1 = rad1 * Math.cos(ang);
       seg1.yy1 = rad1 * Math.sin(ang);
       if (Math.abs(seg1.xx1) > Math.abs(seg1.yy1)) {
+        seg1.yy1 *= Math.abs(rad1 / seg1.xx1);
         seg1.xx1 = seg1.xx1 < 0 ? -rad1 : rad1;
       } else {
+        seg1.xx1 *= Math.abs(rad1 / seg1.yy1);
         seg1.yy1 = seg1.yy1 < 0 ? -rad1 : rad1;
       }
       seg1.xx2 = rad2 * Math.cos(ang);
       seg1.yy2 = rad2 * Math.sin(ang);
       if (Math.abs(seg1.xx2) > Math.abs(seg1.yy2)) {
+        seg1.yy2 *= Math.abs(rad2 / seg1.xx2);
         seg1.xx2 = seg1.xx2 < 0 ? -rad2 : rad2;
       } else {
+        seg1.xx2 *= Math.abs(rad2 / seg1.yy2);
         seg1.yy2 = seg1.yy2 < 0 ? -rad2 : rad2;
       }
 
@@ -155,15 +169,19 @@ export class ColinComponent implements OnInit {
       seg2.xx1 = rad1 * Math.cos(ang);
       seg2.yy1 = rad1 * Math.sin(ang);
       if (Math.abs(seg2.xx1) > Math.abs(seg2.yy1)) {
+        seg2.yy1 *= Math.abs(rad1 / seg2.xx1);
         seg2.xx1 = seg2.xx1 < 0 ? -rad1 : rad1;
       } else {
+        seg2.xx1 *= Math.abs(rad1 / seg2.yy1);
         seg2.yy1 = seg2.yy1 < 0 ? -rad1 : rad1;
       }
       seg2.xx2 = rad2 * Math.cos(ang);
       seg2.yy2 = rad2 * Math.sin(ang);
       if (Math.abs(seg2.xx2) > Math.abs(seg2.yy2)) {
+        seg2.yy2 *= Math.abs(rad2 / seg2.xx2);
         seg2.xx2 = seg2.xx2 < 0 ? -rad2 : rad2;
       } else {
+        seg2.xx2 *= Math.abs(rad2 / seg2.yy2);
         seg2.yy2 = seg2.yy2 < 0 ? -rad2 : rad2;
       }
       if (seg1.xx1 === -rad1 && seg2.xx1 === -rad1) {// both left side
