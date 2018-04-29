@@ -73,7 +73,7 @@ export class ColinComponent implements OnInit {
       .text('\uf2bd');
 
     text1.attr('dy', +text1.style('font-size').replace('px', '') / 4);
-    const innerRadius = 0,
+    const innerRadius = 45,
       outerRadius = 50;
     const radian = Math.PI / 180,
       startAngle = 45 * radian,
@@ -201,8 +201,12 @@ export class ColinComponent implements OnInit {
   squareArc(ang1: number, ang2: number, rad1: number, rad2: number) {
     const seg1 = { xx1: 0, xx2: 0, yy1: 0, yy2: 0 };
     const seg2 = { xx1: 0, xx2: 0, yy1: 0, yy2: 0, face: 0 };
-    if(rad1==0){rad1=1e-7;}
-    if(rad2==0){rad2=1e-7;}
+    if (rad1 == 0) {
+      rad1 = 1e-7;
+    }
+    if (rad2 == 0) {
+      rad2 = 1e-7;
+    }
     seg1.xx1 = rad1 * Math.cos(ang1);
     seg1.yy1 = rad1 * Math.sin(ang1);
     if (rad1 > 0) {
