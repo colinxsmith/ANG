@@ -3,6 +3,12 @@
     ang2 -= Math.PI * 0.5;
     const seg1 = { xx1: 0, xx2: 0, yy1: 0, yy2: 0 };
     const seg2 = { xx1: 0, xx2: 0, yy1: 0, yy2: 0, face: 0 };
+    if (rad1 === 0) {
+      rad1 = 1e-7;
+    }
+    if (rad2 === 0) {
+      rad2 = 1e-7;
+    }
     seg1.xx1 = rad1 * Math.cos(ang1);
     seg1.yy1 = rad1 * Math.sin(ang1);
     if (Math.abs(seg1.xx1) > Math.abs(seg1.yy1)) {
