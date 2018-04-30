@@ -8,11 +8,17 @@ import * as d3 from 'd3';
   encapsulation: ViewEncapsulation.None
 })
 export class ColinComponent implements OnInit {
-  constructor() {}
+  constructor() { }
   centX = '100px';
   centY = '100px';
+  numbers = [2, 3, 4, 99];
   ngOnInit() {
     this.BAR(+this.centX.replace('px', ''), +this.centY.replace('px', ''));
+  }
+  onClick() {
+    console.log('on Click');
+    d3.select('svg').remove();
+    this.BAR(+this.centX.replace('px', '')*0.9, +this.centY.replace('px', '')*0.9);
   }
   BAR(cx: number, cy: number) {
     const formatH = d3.format('0.2f');
@@ -45,7 +51,7 @@ export class ColinComponent implements OnInit {
       .attr('cx', cx + 'px')
       .attr('cy', cy + 'px')
       .attr('class', 'rim')
-      .on('mousemove', function() {
+      .on('mousemove', function () {
         const mouseCoord = d3.mouse(d3.event.currentTarget);
         tool
           .style('left', d3.event.pageX + 'px')
@@ -53,10 +59,10 @@ export class ColinComponent implements OnInit {
           .html(formatH(mouseCoord[0]) + '<br>' + formatH(mouseCoord[1]))
           .style('display', 'inline-block');
       })
-      .on('mouseout', function() {
+      .on('mouseout', function () {
         tool.style('display', 'none');
       })
-      .on('click', function(dd, ii, pp) {
+      .on('click', function (dd, ii, pp) {
         const here = d3.select(pp[ii]);
         const mouseCoord = d3.mouse(d3.event.currentTarget);
         here.attr('cx', mouseCoord[0] + 'px');
@@ -92,7 +98,7 @@ export class ColinComponent implements OnInit {
       .enter()
       .append('path')
       .attr('transform', `translate(${250},${100}),rotate(0)`)
-      .attr('d', function(d) {
+      .attr('d', function (d) {
         return arcfunc({
           startAngle: d.angle1 + Math.PI / 2,
           endAngle: d.angle2 + Math.PI / 2,
@@ -101,7 +107,7 @@ export class ColinComponent implements OnInit {
           padAngle: 0
         });
       })
-      .on('mousemove', function(
+      .on('mousemove', function (
         d,
         i
       ) {
@@ -111,21 +117,21 @@ export class ColinComponent implements OnInit {
           .style('top', d3.event.pageY - 30 + 'px')
           .html(
             i +
-              ' ' +
-              data1[i] +
-              ' ' +
-              d.data +
-              ' ' +
-              formatA((d.angle1 / Math.PI * 180) % 360) +
-              ' ' +
-              formatA((d.angle2 / Math.PI * 180) % 360)
+            ' ' +
+            data1[i] +
+            ' ' +
+            d.data +
+            ' ' +
+            formatA((d.angle1 / Math.PI * 180) % 360) +
+            ' ' +
+            formatA((d.angle2 / Math.PI * 180) % 360)
           )
           .style('display', 'inline-block');
       })
-      .on('mouseout', function() {
+      .on('mouseout', function () {
         tool.style('display', 'none');
       })
-      .style('fill', function(d, i) {
+      .style('fill', function (d, i) {
         console.log(colour[i]);
         return colour[i];
       });
@@ -136,10 +142,10 @@ export class ColinComponent implements OnInit {
       .enter()
       .append('path')
       .attr('transform', `translate(${250},${100}),rotate(0)`)
-      .attr('d', function(d) {
+      .attr('d', function (d) {
         return arcSquare(d.angle1, d.angle2, innerRadius, outerRadius);
       })
-      .on('mousemove', function(
+      .on('mousemove', function (
         d,
         i
       ) {
@@ -149,21 +155,21 @@ export class ColinComponent implements OnInit {
           .style('top', d3.event.pageY - 30 + 'px')
           .html(
             i +
-              ' ' +
-              data1[i] +
-              ' ' +
-              d.data +
-              ' ' +
-              formatA((d.angle1 / Math.PI * 180) % 360) +
-              ' ' +
-              formatA((d.angle2 / Math.PI * 180) % 360)
+            ' ' +
+            data1[i] +
+            ' ' +
+            d.data +
+            ' ' +
+            formatA((d.angle1 / Math.PI * 180) % 360) +
+            ' ' +
+            formatA((d.angle2 / Math.PI * 180) % 360)
           )
           .style('display', 'inline-block');
       })
-      .on('mouseout', function() {
+      .on('mouseout', function () {
         tool.style('display', 'none');
       })
-      .style('fill', function(d, i) {
+      .style('fill', function (d, i) {
         console.log(colour[i]);
         return colour[i];
       })
@@ -201,10 +207,10 @@ export class ColinComponent implements OnInit {
   squareArc(ang1: number, ang2: number, rad1: number, rad2: number) {
     const seg1 = { xx1: 0, xx2: 0, yy1: 0, yy2: 0 };
     const seg2 = { xx1: 0, xx2: 0, yy1: 0, yy2: 0, face: 0 };
-    if (rad1 == 0) {
+    if (rad1 === 0) {
       rad1 = 1e-7;
     }
-    if (rad2 == 0) {
+    if (rad2 === 0) {
       rad2 = 1e-7;
     }
     seg1.xx1 = rad1 * Math.cos(ang1);
@@ -487,7 +493,7 @@ export class ColinComponent implements OnInit {
     }[]>[];
     let totD = 0;
     const botD = 0;
-    data.forEach(function(d, i) {
+    data.forEach(function (d, i) {
       totD += d;
       cumData[i] = totD;
     });
@@ -497,7 +503,7 @@ export class ColinComponent implements OnInit {
       .range([startAngle, endAngle]);
     let startPosition = botD;
     const arcHere = this.squareArc;
-    cumData.forEach(function(d) {
+    cumData.forEach(function (d) {
       const ang1 = angle(startPosition);
       const ang2 = angle(d);
       linesD.push({
