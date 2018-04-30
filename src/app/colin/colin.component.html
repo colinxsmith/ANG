@@ -1,5 +1,5 @@
 <p>
-  Circle centre: ({{centX}} , {{centY}})
+  Circle centre: ({{centX}} ,  {{centY}})
   <i class="fa fa-check fa-spin"></i>
   <i class="fa fa-spinner fa-spin"></i>
   <i class="fa fa-cog fa-spin"></i>
@@ -15,5 +15,18 @@
   </div>
 </div>
 <div>
-  <button (click)="onClick()">Push</button>
-  <div>
+    <button (click)="doBar()">Push</button>
+    <button (click)="doShape()">Shape</button>
+    <p>{{path}}</p>
+</div>
+  <svg id="keep" width='200' height='200'>
+      <path transform="translate(100, 100), rotate(0)" [attr.d]="path" style="fill: green;"></path>
+      <path transform="translate(100, 100), rotate(0)" [attr.d]="squareArc(0, 6.28, 40, 39)" style="fill: red;"></path>
+      <path transform="translate(100, 100), rotate(0)" [attr.d]="squareArc(0, 0.3, 20, 30)" style="fill: orange;"></path>
+      <path transform="translate(100, 100), rotate(0)" [attr.d]="squareArc(0.3, 0.6, 20, 30)" style="fill: green;"></path>
+      <path transform="translate(100, 100), rotate(0)" [attr.d]="squareArc(0.6, 1, 20, 30)" style="fill: lightgreen;"></path>
+      <path transform="translate(100, 100), rotate(0)" [attr.d]="squareArc(1, 1.6, 20, 30)" style="fill: cyan;"></path>
+      <path transform="translate(100, 100), rotate(0)" [attr.d]="squareArc(1.6, 3.28, 20, 30)" style="fill: brown;"></path>
+      <path transform="translate(100, 100), rotate(0)" [attr.d]="squareArc(3.28, 5,  20, 30)" style="fill: rgb(102,  47,  64);"></path>
+      <path transform="translate(100, 100), rotate(0)" [attr.d]="squareArc(5, 6.28,  20, 30)" style="fill: blue;"></path>
+  </svg>

@@ -11,14 +11,18 @@ export class ColinComponent implements OnInit {
   constructor() { }
   centX = '100px';
   centY = '100px';
-  numbers = [2, 3, 4, 99];
+  path = 'M 50 50 l 0 50 l 50 0z';
+  numbers = [2, 3, 4 ];
   ngOnInit() {
     this.BAR(+this.centX.replace('px', ''), +this.centY.replace('px', ''));
   }
-  onClick() {
+  doShape() {
+    this.path = this.squareArc(0, 2 * Math.PI, 90, 100);
+  }
+  doBar() {
     console.log('on Click');
-    d3.select('svg').remove();
-    this.BAR(+this.centX.replace('px', '')*0.9, +this.centY.replace('px', '')*0.9);
+    d3.select('#lose').remove();
+    this.BAR(+this.centX.replace('px', '') * 0.75, +this.centY.replace('px', '') * 0.75);
   }
   BAR(cx: number, cy: number) {
     const formatH = d3.format('0.2f');
@@ -43,6 +47,7 @@ export class ColinComponent implements OnInit {
       .select('app-colin')
       .append('svg')
       .attr('viewBox', '0 0 500 500')
+      .attr('id', 'lose')
       .append('g');
 
     const circles = svg
