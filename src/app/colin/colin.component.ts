@@ -11,7 +11,8 @@ export class ColinComponent implements OnInit {
   constructor() { }
   centX = '100px';
   centY = '100px';
-  path = 'M 50 50 l 0 50 l 50 0z';
+  path1 = 'M 50 50 l 0 50 l 50 0z M -100 -100 l 0 50 l 50 0z M -100 50 l 0 50 l 50 0z M 50 -100 l 0 50 l 50 0z';
+  path = this.path1;
   numbers = [2, 3, 4 ];
   ngOnInit() {
     this.BAR(+this.centX.replace('px', ''), +this.centY.replace('px', ''));
@@ -23,6 +24,7 @@ export class ColinComponent implements OnInit {
     console.log('on Click');
     d3.select('#lose').remove();
     this.BAR(+this.centX.replace('px', '') * 0.75, +this.centY.replace('px', '') * 0.75);
+    this.path = this.path1;
   }
   BAR(cx: number, cy: number) {
     const formatH = d3.format('0.2f');
@@ -210,6 +212,7 @@ export class ColinComponent implements OnInit {
     }
   }
   squareArc(ang1: number, ang2: number, rad1: number, rad2: number) {
+    const makeZ = newFunction();
     const seg1 = { xx1: 0, xx2: 0, yy1: 0, yy2: 0 };
     const seg2 = { xx1: 0, xx2: 0, yy1: 0, yy2: 0, face: 0 };
     if (rad1 === 0) {
@@ -325,6 +328,14 @@ export class ColinComponent implements OnInit {
       seg2.face = 3;
     }
     let quadR = `M ${seg1.xx2} ${seg1.yy2} L ${seg1.xx1} ${seg1.yy1}`;
+    seg1.xx1 = makeZ(seg1.xx1);
+    seg1.yy1 = makeZ(seg1.yy1);
+    seg1.xx2 = makeZ(seg1.xx2);
+    seg1.yy2 = makeZ(seg1.yy2);
+    seg2.xx1 = makeZ(seg2.xx1);
+    seg2.yy1 = makeZ(seg2.yy1);
+    seg2.xx2 = makeZ(seg2.xx2);
+    seg2.yy2 = makeZ(seg2.yy2);
     if (seg2.face === 0) {
       if (seg1.xx1 === -rad1) {
         quadR += `L ${-rad1} ${seg2.yy1}`;
@@ -522,3 +533,7 @@ export class ColinComponent implements OnInit {
     return linesD;
   }
 }
+function newFunction() {
+  return function (x: number): number { return Math.abs(x) < 1e-8 ? 0 : x; };
+}
+
