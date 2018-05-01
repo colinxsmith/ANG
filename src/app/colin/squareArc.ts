@@ -1,6 +1,7 @@
   function squareArc(ang1: number, ang2: number, rad1: number, rad2: number) {
     ang1 -= Math.PI * 0.5;
     ang2 -= Math.PI * 0.5;
+    const makeZ = function(x: number): number { return Math.abs(x) < 1e-8 ? 0 : x; };
     const seg1 = { xx1: 0, xx2: 0, yy1: 0, yy2: 0 };
     const seg2 = { xx1: 0, xx2: 0, yy1: 0, yy2: 0, face: 0 };
     if (rad1 === 0) {
@@ -112,6 +113,14 @@
       seg2.face = 3;
     }
     let quadR = `M ${seg1.xx2} ${seg1.yy2} L ${seg1.xx1} ${seg1.yy1}`;
+    seg1.xx1 = makeZ(seg1.xx1);
+    seg1.yy1 = makeZ(seg1.yy1);
+    seg1.xx2 = makeZ(seg1.xx2);
+    seg1.yy2 = makeZ(seg1.yy2);
+    seg2.xx1 = makeZ(seg2.xx1);
+    seg2.yy1 = makeZ(seg2.yy1);
+    seg2.xx2 = makeZ(seg2.xx2);
+    seg2.yy2 = makeZ(seg2.yy2);
     if (seg2.face === 0) {
       if (seg1.xx1 === -rad1) {
         quadR += `L ${-rad1} ${seg2.yy1}`;
