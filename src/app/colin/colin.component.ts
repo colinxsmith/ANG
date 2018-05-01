@@ -83,7 +83,7 @@ export class ColinComponent implements OnInit {
       .attr('class', 'text')
       .attr('x', cx + 'px')
       .attr('y', cy + 'px')
-      .text('\uf2bd');
+      .text('\uf025'); // headphones
 
     text1.attr('dy', +text1.style('font-size').replace('px', '') / 4);
     const innerRadius = 45,
